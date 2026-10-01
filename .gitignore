@@ -1,0 +1,18 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Node
+node_modules/
+dist/
+
+# Banco local e ambiente
+*.db
+*.sqlite3
+.env
+
+# IDE
+.vscode/
+.idea/
