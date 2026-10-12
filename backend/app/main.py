@@ -1,7 +1,13 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from app.database import engine, Base
+from app.routers import test_utils
+from app import models
+
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="API de Estoque")
+app.include_router(test_utils.router)
 
 # Permite que o frontend (Vite, porta 5173) chame a API durante o desenvolvimento
 app.add_middleware(
