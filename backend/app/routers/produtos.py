@@ -71,6 +71,17 @@ def listar_produtos(
 
     return query.order_by(Produto.nome).all()
 
+@router.get("/categorias", response_model=list[str])
+def listar_categorias(db: Session = Depends(get_db)):
+    linhas = (
+        db.query(Produto.categoria)
+        .filter(Produto.ativo == True)
+        .distinct()
+        .order_by(Produto.categoria)
+        .all()
+    )
+    return [linha[0] for linha in linhas]
+
 @router.delete("/{produto_id}", status_code=204)
 def excluir_produto(produto_id: int, db: Session = Depends(get_db)):
 
