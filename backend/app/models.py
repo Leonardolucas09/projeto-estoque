@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Numeric, Enum
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Numeric, Enum, Boolean
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -16,6 +16,7 @@ class Produto(Base):
     quantidade_estoque = Column(Integer, nullable=False, default=0)
     quantidade_minima = Column(Integer, nullable=False, default=0)
     categoria = Column(String, nullable=False)
+    ativo = Column(Boolean, nullable=False, default=True)
 
     movimentacoes = relationship("Movimentacao", back_populates="produto")
 
