@@ -1,4 +1,6 @@
 from decimal import Decimal
+from datetime import datetime
+from app.models import TipoMovimentacao
 from pydantic import BaseModel, Field, ConfigDict
 
 class ProdutoCreate(BaseModel):
@@ -19,4 +21,15 @@ class ProdutoUpdate(BaseModel):
 
 class ProdutoResponse(ProdutoCreate):
     id: int
+    model_config = ConfigDict(from_attributes=True)
+
+class MovimentacaoCreate(BaseModel):
+    produto_id: int
+    tipo: TipoMovimentacao
+    quantidade: int = Field(gt=0)
+
+class MovimentacaoResponse(MovimentacaoCreate):
+    id: int
+    data_movimentacao: datetime
+
     model_config = ConfigDict(from_attributes=True)
