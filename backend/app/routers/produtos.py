@@ -32,7 +32,7 @@ def criar_produto(dados: ProdutoCreate, db: Session = Depends(get_db)):
 @router.put("/{produto_id}", response_model=ProdutoResponse)
 def atualizar_produto(produto_id: int, dados: ProdutoUpdate, db: Session = Depends(get_db)):
     
-    buscar_produto_ativo(db, produto_id)
+    produto = buscar_produto_ativo(db, produto_id)
 
     campos = dados.model_dump(exclude_unset=True, exclude_none=True)  # Apenas campos fornecidos
 
