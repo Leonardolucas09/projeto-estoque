@@ -22,7 +22,7 @@ export async function listarProdutos({ busca="", categoria="" } = {}) {
 
 export async function listarCategorias() {
 
-    const response = await fetch(`${API_URL}/produtos/categoria`);
+    const response = await fetch(`${API_URL}/produtos/categorias`);
 
     if (! response.ok) {
         throw new Error("Erro ao listar as categorias.")
