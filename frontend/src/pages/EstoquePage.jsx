@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { listarProdutos, listarCategorias } from "../services/api";
+import Cabecalho from "../components/Cabecalho";
 
 export default function ProdutosPage() {
     const [produtos, setProdutos] = useState([]);
@@ -22,7 +23,14 @@ export default function ProdutosPage() {
     }, [busca, categoria]);
 
     return (
-        <div>         
+        <div className="min-h-screen bg-slate-950 text-slate-50">
+            <Cabecalho
+                busca={busca}
+                onBuscaChange={setBusca}
+                categoria={categoria}
+                onCategoriaChange={setCategoria}
+                categorias={categorias}
+            />     
             <input type="text" value={busca} onChange={ (e) => setBusca(e.target.value) } data-testid="input-busca"/>
 
             <select name="categoria" value={categoria} onChange={ (e) => setCategoria(e.target.value) } data-testid="select-categoria">
