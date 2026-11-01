@@ -1,0 +1,9 @@
+export default function Caixas() {
+    return (
+        <div>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#020617" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m21 8-9-5-9 5 9 5 9-5Z"/><path d="m3 8 9 5 9-5M12 13v9M20 12v5l-8 5-8-5v-5"/>
+            </svg>
+        </div>
+    )
+}
