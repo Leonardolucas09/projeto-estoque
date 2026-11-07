@@ -4,6 +4,7 @@ import Cabecalho from "../components/Cabecalho";
 import TabelaProdutos from "../components/TabelaProdutos";
 import PainelMovimentacao from "../components/PainelMovimentacao";
 import ModalExclusao from "../Produto/ModalExclusao";
+import ModalProduto from "../Produto/ModalProduto";
 
 export default function ProdutosPage() {
     const [produtos, setProdutos] = useState([]);
@@ -16,11 +17,12 @@ export default function ProdutosPage() {
     const [versao, setVersao] = useState(0);
     const [mensagem, setMensagem] = useState("");
     const [produtoParaExclusao, setProdutoParaExclusao] = useState(null);
+    const [modalProduto, setModalProduto] = useState(null);
     const recarregar = () => setVersao((v) => v + 1);
 
     useEffect(() => {
         listarCategorias().then(setCategorias).catch(() => setErro("Erro ao carregar a categoria"));
-    }, []);
+    }, [versao]);
 
     useEffect(() => {
         listarProdutos({ busca, categoria })
@@ -39,7 +41,10 @@ export default function ProdutosPage() {
             categoria={categoria}
             onCategoriaChange={setCategoria}
             categorias={categorias}
-            onNovoProduto={() => {}}
+            onNovoProduto={() => { 
+                setMensagem(""); 
+                setModalProduto({ produto: null }); 
+            }}
         />
 
         <main className="mx-auto max-w-350 px-6 py-8">
@@ -79,7 +84,10 @@ export default function ProdutosPage() {
                             produtos={produtos}
                             produtoSelecionadoId={idSelecionado}
                             onSelecionar={(p) => setIdSelecionado(p.id)}
-                            onEditar={() => {}}
+                            onEditar={(p) => { 
+                                setMensagem(""); 
+                                setModalProduto({ produto: p }); 
+                            }}
                             onExcluir={(p) => setProdutoParaExclusao(p)}
                         />
                     )}
@@ -99,7 +107,22 @@ export default function ProdutosPage() {
                 setProdutoParaExclusao(null);
                 recarregar();
             }}
+            
         />
+
+        {modalProduto && (
+            <ModalProduto
+                key={modalProduto.produto?.id ?? "novo"}
+                produto={modalProduto.produto}
+                categorias={categorias}
+                onCancelar={() => setModalProduto(null)}
+                onSalvo={(msg) => {
+                setMensagem(msg);
+                setModalProduto(null);
+                recarregar();
+                }}
+            />
+        )}
     </div>
 );
 }
