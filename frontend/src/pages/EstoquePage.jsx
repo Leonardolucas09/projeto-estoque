@@ -3,6 +3,7 @@ import { listarProdutos, listarCategorias } from "../services/api";
 import Cabecalho from "../components/Cabecalho";
 import TabelaProdutos from "../components/TabelaProdutos";
 import PainelMovimentacao from "../components/PainelMovimentacao";
+import ModalExclusao from "../Produto/ModalExclusao";
 
 export default function ProdutosPage() {
     const [produtos, setProdutos] = useState([]);
@@ -13,6 +14,8 @@ export default function ProdutosPage() {
     const [idSelecionado, setIdSelecionado] = useState(null);
     const produtoSelecionado = produtos.find((p) => p.id === idSelecionado) ?? null;
     const [versao, setVersao] = useState(0);
+    const [mensagem, setMensagem] = useState("");
+    const [produtoParaExclusao, setProdutoParaExclusao] = useState(null);
     const recarregar = () => setVersao((v) => v + 1);
 
     useEffect(() => {
@@ -50,6 +53,13 @@ export default function ProdutosPage() {
                 </p>
             </div>
 
+            { mensagem && (
+                <div data-testid="msg-feedback" 
+                    className="mb-6 rounded-lg border border-emerald-500 bg-emerald-950/50 px-4 py-3 text-sm text-emerald-400">
+                    {mensagem}
+                </div>
+            )}
+
             <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
                 <section>
                     {erro ? (
@@ -70,7 +80,7 @@ export default function ProdutosPage() {
                             produtoSelecionadoId={idSelecionado}
                             onSelecionar={(p) => setIdSelecionado(p.id)}
                             onEditar={() => {}}
-                            onExcluir={() => {}}
+                            onExcluir={(p) => setProdutoParaExclusao(p)}
                         />
                     )}
                 </section>
@@ -80,6 +90,16 @@ export default function ProdutosPage() {
                 </aside>
             </div>
         </main>
+
+        <ModalExclusao
+            produto={produtoParaExclusao}
+            onCancelar={() => setProdutoParaExclusao(null)}
+            onExcluido={() => {
+                setMensagem("Produto excluído com sucesso.");
+                setProdutoParaExclusao(null);
+                recarregar();
+            }}
+        />
     </div>
 );
 }
