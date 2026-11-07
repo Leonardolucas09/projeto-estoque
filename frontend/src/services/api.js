@@ -47,6 +47,50 @@ export async function registrarMovimentacao({ produto_id, tipo, quantidade }) {
     return response.json();
 }
 
+export async function criarProduto(dados) {
+    const response = await fetch(`${API_URL}/produtos`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(dados)
+    });
+
+    if (! response.ok) {
+        const corpo = await response.json().catch(() => null);
+        throw new Error(extrairMensagem(corpo));
+    }
+    return response.json();
+}
+
+export async function atualizarProduto(id, dados) {
+    const response = await fetch(`${API_URL}/produtos/${id}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(dados)
+    });
+
+    if (! response.ok) {
+        const corpo = await response.json().catch(() => null);
+        throw new Error(extrairMensagem(corpo));
+    }
+    return response.json();
+}
+
+export async function excluirProduto(id) {
+    const response = await fetch(`${API_URL}/produtos/${id}`, {
+        method: "DELETE"
+    });
+
+    if (! response.ok) {
+        const corpo = await response.json().catch(() => null);
+        throw new Error(extrairMensagem(corpo));
+    }
+}
+
+
 function extrairMensagem(corpo) {
     const detalhe = corpo?.detail;
     if (typeof detalhe === "string") {
