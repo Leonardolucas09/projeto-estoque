@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { listarProdutos, listarCategorias } from "../services/api";
 import Cabecalho from "../components/Cabecalho";
+import TabelaProdutos from "../components/TabelaProdutos";
+import PainelMovimentacao from "../components/PainelMovimentacao";
 
 export default function ProdutosPage() {
     const [produtos, setProdutos] = useState([]);
@@ -8,6 +10,10 @@ export default function ProdutosPage() {
     const [busca, setBusca] = useState("");
     const [categoria, setCategoria] = useState("");
     const [erro, setErro] = useState("");
+    const [idSelecionado, setIdSelecionado] = useState(null);
+    const produtoSelecionado = produtos.find((p) => p.id === idSelecionado) ?? null;
+    const [versao, setVersao] = useState(0);
+    const recarregar = () => setVersao((v) => v + 1);
 
     useEffect(() => {
         listarCategorias().then(setCategorias).catch(() => setErro("Erro ao carregar a categoria"));
@@ -20,58 +26,60 @@ export default function ProdutosPage() {
                 setErro("");
             })
             .catch(() => setErro("Erro ao carregar produtos"));
-    }, [busca, categoria]);
+    }, [busca, categoria, versao]);
 
     return (
-        <div className="min-h-screen bg-slate-950 text-slate-50">
-            <Cabecalho
-                busca={busca}
-                onBuscaChange={setBusca}
-                categoria={categoria}
-                onCategoriaChange={setCategoria}
-                categorias={categorias}
-            />     
-            <input type="text" value={busca} onChange={ (e) => setBusca(e.target.value) } data-testid="input-busca"/>
+    <div className="min-h-screen bg-slate-950 text-slate-50">
+        <Cabecalho
+            busca={busca}
+            onBuscaChange={setBusca}
+            categoria={categoria}
+            onCategoriaChange={setCategoria}
+            categorias={categorias}
+            onNovoProduto={() => {}}
+        />
 
-            <select name="categoria" value={categoria} onChange={ (e) => setCategoria(e.target.value) } data-testid="select-categoria">
-                <option value="">Todas as categorias</option>
-                {categorias.map((cat) => (
-                    <option key={cat} value={cat}>
-                        {cat}
-                    </option>
-                ))}
-            </select>
+        <main className="mx-auto max-w-350 px-6 py-8">
+            <div className="mb-6">
+                <p className="text-xs font-semibold uppercase tracking-widest text-emerald-400">
+                    Visão geral
+                </p>
+                <h2 className="text-2xl font-bold">Gestão de estoque</h2>
+                <p className="text-sm text-slate-400">
+                    Acompanhe produtos, níveis de estoque e movimentações.
+                </p>
+            </div>
 
-            {erro ? (
-                <p data-testid="msg-erro-carregar">{erro}</p>
-            ) : produtos.length === 0 ? (
-                <p data-testid="msg-lista-vazia">Nenhum produto encontrado.</p>
-            ) : (
-                <table data-testid="tabela-produtos">
-                    <thead>
-                        <tr>
-                            <th>SKU</th>
-                            <th>Produto</th>
-                            <th>Categoria</th>
-                            <th>Preço Unitário</th>
-                            <th>Estoque</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {produtos.map((produto) => (
-                            <tr key={produto.id} data-testid={`linha-produto-${produto.id}`}>
-                                <td>{produto.sku}</td>
-                                <td>{produto.nome}</td>
-                                <td>{produto.categoria}</td>
-                                <td>{Number(produto.preco_unitario).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</td>
-                                <td>{produto.quantidade_estoque}</td>
-                                <td>{produto.status}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            )}
-        </div>
-    );
+            <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
+                <section>
+                    {erro ? (
+                        <div className="rounded-xl border border-slate-800 bg-slate-900/50 px-6 py-16 text-center">
+                            <p data-testid="msg-erro-carregar" className="text-red-400">
+                                {erro}
+                            </p>
+                        </div>
+                    ) : produtos.length === 0 ? (
+                        <div className="rounded-xl border border-slate-800 bg-slate-900/50 px-6 py-16 text-center">
+                            <p data-testid="msg-lista-vazia" className="text-slate-400">
+                                Nenhum produto encontrado.
+                            </p>
+                        </div>
+                    ) : (
+                        <TabelaProdutos
+                            produtos={produtos}
+                            produtoSelecionadoId={idSelecionado}
+                            onSelecionar={(p) => setIdSelecionado(p.id)}
+                            onEditar={() => {}}
+                            onExcluir={() => {}}
+                        />
+                    )}
+                </section>
+
+                <aside className="self-start rounded-xl border border-slate-800 bg-slate-900/50 p-6">
+                    <PainelMovimentacao produto={produtoSelecionado} onMovimentacaoRegistrada={recarregar} />
+                </aside>
+            </div>
+        </main>
+    </div>
+);
 }
