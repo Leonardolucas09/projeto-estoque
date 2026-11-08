@@ -1,5 +1,5 @@
 function estoqueBaixo(produto) {
-    return produto.quantidade_estoque < 5;
+    return produto.quantidade_estoque < produto.quantidade_minima;
 }
 
 export default function TabelaProdutos({ 

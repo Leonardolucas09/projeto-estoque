@@ -10,6 +10,10 @@ class EstoquePage:
     INPUT_BUSCA = (By.CSS_SELECTOR, '[data-testid="input-busca"]')
     SELECT_CATEGORIA = (By.CSS_SELECTOR, '[data-testid="select-categoria"]')
     MSG_LISTA_VAZIA = (By.CSS_SELECTOR, '[data-testid="msg-lista-vazia"]')
+    PAINEL_ESTOQUE = (By.CSS_SELECTOR, '[data-testid="produto-selecionado-estoque"]')
+    INPUT_QUANTIDADE = (By.CSS_SELECTOR, '[data-testid="input-quantidade"]')
+    BTN_CONFIRMAR = (By.CSS_SELECTOR, '[data-testid="btn-confirmar-movimentacao"]')
+    MSG_ERRO = (By.CSS_SELECTOR, '[data-testid="msg-erro"]')
 
     def __init__(self, driver, timeout=5):
         self.driver = driver
@@ -43,3 +47,37 @@ class EstoquePage:
     def esperar_msg_lista_vazia(self):
         mensagem = self.wait.until(EC.visibility_of_element_located(self.MSG_LISTA_VAZIA))
         return mensagem.text
+
+    @staticmethod
+    def _botao_tipo(tipo):
+        # "ENTRADA" -> "btn-tipo-entrada" | "SAÍDA" -> "btn-tipo-saida"
+        return (By.CSS_SELECTOR, f'[data-testid="btn-tipo-{tipo.lower()}"]')
+
+    @staticmethod
+    def _badge_baixo(produto_id):
+        return (By.CSS_SELECTOR, f'[data-testid="alert-estoque-baixo-{produto_id}"]')
+
+    def selecionar_produto(self, produto_id):
+        linha = self.wait.until(EC.element_to_be_clickable(self._linha(produto_id)))
+        linha.find_element(By.TAG_NAME, "td").click()
+
+    def movimentar(self, tipo, quantidade):
+        self.wait.until(EC.element_to_be_clickable(self._botao_tipo(tipo))).click()
+        campo = self.wait.until(EC.visibility_of_element_located(self.INPUT_QUANTIDADE))
+        campo.clear()
+        campo.send_keys(str(quantidade))
+        self.driver.find_element(*self.BTN_CONFIRMAR).click()
+
+    def esperar_estoque_no_painel(self, quantidade):
+        self.wait.until(
+            lambda d: d.find_element(*self.PAINEL_ESTOQUE).text == f"{quantidade} em estoque"
+        )
+
+    def esperar_mensagem_erro(self):
+        return self.wait.until(EC.visibility_of_element_located(self.MSG_ERRO)).text
+
+    def tem_badge_estoque_baixo(self, produto_id):
+        return len(self.driver.find_elements(*self._badge_baixo(produto_id))) > 0
+
+    def esperar_badge_estoque_baixo(self, produto_id):
+        self.wait.until(EC.presence_of_element_located(self._badge_baixo(produto_id)))
