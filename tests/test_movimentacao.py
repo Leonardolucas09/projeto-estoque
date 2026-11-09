@@ -1,5 +1,4 @@
 from pages.estoque_page import EstoquePage
-from selenium.webdriver.common.by import By
 
 
 def test_entrada_aumenta_o_estoque(driver):
@@ -41,7 +40,3 @@ def test_estoque_igual_ao_minimo_nao_e_considerado_baixo(driver):
 
     assert pagina.tem_badge_estoque_baixo(2)       # 19 < 20
     assert not pagina.tem_badge_estoque_baixo(4)   # 50 = 50
-
-    ids = [e.get_attribute("data-testid")
-       for e in driver.find_elements(By.CSS_SELECTOR, '[data-testid^="alert-estoque-baixo"]')]
-    print("badges na tela:", ids)

@@ -1,6 +1,7 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.keys import Keys
 
 class EstoquePage:
     URL = "http://localhost:5173"
@@ -14,6 +15,26 @@ class EstoquePage:
     INPUT_QUANTIDADE = (By.CSS_SELECTOR, '[data-testid="input-quantidade"]')
     BTN_CONFIRMAR = (By.CSS_SELECTOR, '[data-testid="btn-confirmar-movimentacao"]')
     MSG_ERRO = (By.CSS_SELECTOR, '[data-testid="msg-erro"]')
+
+    BTN_NOVO_PRODUTO = (By.CSS_SELECTOR, '[data-testid="btn-novo-produto"]')
+    MODAL_PRODUTO = (By.CSS_SELECTOR, '[data-testid="modal-produto"]')
+    BTN_SALVAR = (By.CSS_SELECTOR, '[data-testid="btn-salvar-produto"]')
+    MSG_ERRO_PRODUTO = (By.CSS_SELECTOR, '[data-testid="msg-erro-produto"]')
+    MSG_FEEDBACK = (By.CSS_SELECTOR, '[data-testid="msg-feedback"]')
+
+    MODAL_EXCLUSAO = (By.CSS_SELECTOR, '[data-testid="modal-exclusao"]')
+    BTN_CONFIRMAR_EXCLUSAO = (By.CSS_SELECTOR, '[data-testid="btn-confirmar-exclusao"]')
+    BTN_CANCELAR_EXCLUSAO = (By.CSS_SELECTOR, '[data-testid="btn-cancelar-exclusao"]')
+
+    CAMPOS = {
+        "sku": "input-sku",
+        "nome": "input-nome",
+        "categoria": "input-categoria",
+        "preco": "input-preco",
+        "estoque": "input-estoque",
+        "minimo": "input-minimo",
+    }
+
 
     def __init__(self, driver, timeout=5):
         self.driver = driver
@@ -81,3 +102,53 @@ class EstoquePage:
 
     def esperar_badge_estoque_baixo(self, produto_id):
         self.wait.until(EC.presence_of_element_located(self._badge_baixo(produto_id)))
+
+    def _preencher(self, campo, valor):
+        elemento = self.wait.until(
+            EC.visibility_of_element_located((By.CSS_SELECTOR, f'[data-testid="{self.CAMPOS[campo]}"]'))
+        )
+        elemento.send_keys(Keys.CONTROL, "a", Keys.BACKSPACE)
+        elemento.send_keys(str(valor))
+
+    def abrir_novo_produto(self):
+        self.wait.until(EC.element_to_be_clickable(self.BTN_NOVO_PRODUTO)).click()
+        self.wait.until(EC.visibility_of_element_located(self.MODAL_PRODUTO))
+
+    def abrir_edicao(self, produto_id):
+        botao = (By.CSS_SELECTOR, f'[data-testid="btn-editar-{produto_id}"]')
+        self.wait.until(EC.element_to_be_clickable(botao)).click()
+        self.wait.until(EC.visibility_of_element_located(self.MODAL_PRODUTO))
+
+    def preencher_produto(self, **campos):
+        for campo, valor in campos.items():
+            self._preencher(campo, valor)
+
+    def salvar_produto(self):
+        self.driver.find_element(*self.BTN_SALVAR).click()
+
+    def esperar_erro_produto(self):
+        return self.wait.until(EC.visibility_of_element_located(self.MSG_ERRO_PRODUTO)).text
+
+    def esperar_feedback(self):
+        return self.wait.until(EC.visibility_of_element_located(self.MSG_FEEDBACK)).text
+
+    def esperar_modal_produto_fechar(self):
+        self.wait.until(EC.invisibility_of_element_located(self.MODAL_PRODUTO))
+
+    def esperar_linha_aparecer(self, produto_id):
+        self.wait.until(EC.visibility_of_element_located(self._linha(produto_id)))
+
+    def texto_da_linha(self, produto_id):
+        return self.driver.find_element(*self._linha(produto_id)).text
+
+    def abrir_exclusao(self, produto_id):
+        botao = (By.CSS_SELECTOR, f'[data-testid="btn-excluir-{produto_id}"]')
+        self.wait.until(EC.element_to_be_clickable(botao)).click()
+        self.wait.until(EC.visibility_of_element_located(self.MODAL_EXCLUSAO))
+
+    def confirmar_exclusao(self):
+        self.driver.find_element(*self.BTN_CONFIRMAR_EXCLUSAO).click()
+
+    def cancelar_exclusao(self):
+        self.driver.find_element(*self.BTN_CANCELAR_EXCLUSAO).click()
+        self.wait.until(EC.invisibility_of_element_located(self.MODAL_EXCLUSAO))
